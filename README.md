@@ -28,7 +28,7 @@ version):
 | `workouts.csv` | Per-workout: activity, strain, HR zones, energy, distance, altitude | ✅ yes |
 | `journal_entries.csv` | Free-text behaviour/journal answers | 🚫 **never** — see caution above |
 
-So a valid contribution is **the three green CSVs, anonymised** — nothing else.
+So a valid contribution is **the three green CSVs** — nothing else.
 
 ## What this dataset is (and isn't)
 
@@ -37,26 +37,30 @@ So a valid contribution is **the three green CSVs, anonymised** — nothing else
 - **Isn't:** raw beat-to-beat R‑R intervals or raw sensor samples. WHOOP's export is aggregate; if you
   need signal-level data, this isn't the source.
 
-## Supported devices
+## How it's organised: device, then contributor
 
-Tell us which WHOOP generation(s) the data came from — one export can span several as people upgrade:
+The dataset is **sorted by WHOOP device, then by contributor**:
 
-- `3.0`
-- `4.0`
-- `5.0`
-- `MG` (WHOOP MG)
+```
+contributions/<device>/<name>/
+```
 
-## Anonymisation (required)
+- `<device>` is the WHOOP generation the data came from: **`3.0`**, **`4.0`**, **`5.0`**, or **`mg`**.
+- `<name>` is either a **username** (e.g. `alex`) **or** an **anonymous id** (e.g. `user-0001`) — your
+  choice.
 
-Every contribution must be anonymised:
+If your data spans more than one WHOOP model, add a folder under each device with that device's data.
 
-- Your folder is a **pseudonym** — `user-01`, `user-3f9a`, etc. — **never your real name or handle**.
-- Remove any name / email / identifying field from the files. In practice the three metric CSVs don't
-  carry your name, but you are responsible for confirming there's no personal identifier left.
-- `metadata.yml` carries **no** real name — only the pseudonym plus optional, non-identifying context.
+## Anonymous or named — your choice
 
-You confirm this with a tick-box on the PR (and CI double-checks it — e.g. it fails on an email
-address or a `journal` file).
+You decide how you appear:
+
+- **Anonymous:** use an id like `user-0001` as your folder name and set `anonymized: true`.
+- **Named:** use your username as the folder name and set `anonymized: false`.
+
+Either way: **never include an email address, a `journal` file, or other personal data** in the files.
+The three metric CSVs don't carry your name; you're responsible for confirming nothing identifying is
+left. CI double-checks — it fails on an email address or a `journal` file.
 
 ## How to contribute
 
@@ -64,8 +68,10 @@ Full steps are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. In short:
 
 1. Export your WHOOP data and unzip it.
 2. **Delete `journal_entries.csv`.**
-3. Make a folder `contributions/user-XXXX/` (a pseudonym) and drop in the three CSVs.
-4. Fill in `metadata.yml` (copy [`contributions/_TEMPLATE/metadata.yml`](contributions/_TEMPLATE/metadata.yml)).
+3. Make a folder `contributions/<device>/<name>/` (e.g. `contributions/5.0/user-0001/`) and drop in the
+   three CSVs.
+4. Fill in `metadata.yml` (copy [`contributions/_TEMPLATE/metadata.yml`](contributions/_TEMPLATE/metadata.yml);
+   set `device` to match the folder).
 5. Open a pull request and tick the boxes in the PR template.
 
 Automated checks run on every PR (see [`scripts/validate_contribution.py`](scripts/validate_contribution.py)).
@@ -88,12 +94,15 @@ whoop-dataset/
     ├── _TEMPLATE/               # copy this folder to start
     │   ├── metadata.yml
     │   └── PLACE_YOUR_CSVS_HERE.md
-    └── user-XXXX/               # one folder per contributor (pseudonym)
-        ├── metadata.yml
-        ├── physiological_cycles.csv
-        ├── sleeps.csv
-        └── workouts.csv
+    └── <device>/                # 3.0 | 4.0 | 5.0 | mg
+        └── <name>/              # a username, or an anon id like user-0001
+            ├── metadata.yml
+            ├── physiological_cycles.csv
+            ├── sleeps.csv
+            └── workouts.csv
 ```
+
+For example, the seed contribution lives at `contributions/5.0/user-0001/`.
 
 ## License & consent
 
