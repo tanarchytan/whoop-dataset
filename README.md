@@ -62,19 +62,25 @@ Either way: **never include an email address, a `journal` file, or other persona
 The three metric CSVs don't carry your name; you're responsible for confirming nothing identifying is
 left. CI double-checks — it fails on an email address or a `journal` file.
 
-## How to contribute
+## How to contribute — two ways
 
-Full steps are in **[CONTRIBUTING.md](CONTRIBUTING.md)**. In short:
+### Easiest: open an issue (no git needed) ⭐
 
-1. Export your WHOOP data and unzip it.
-2. **Delete `journal_entries.csv`.**
-3. Make a folder `contributions/<device>/<name>/` (e.g. `contributions/5.0/user-0001/`) and drop in the
-   three CSVs.
-4. Fill in `metadata.yml` (copy [`contributions/_TEMPLATE/metadata.yml`](contributions/_TEMPLATE/metadata.yml);
-   set `device` to match the folder).
-5. Open a pull request and tick the boxes in the PR template.
+1. Export your WHOOP data (WHOOP app → **App Settings → Data Export → Download my data**).
+2. Put **only** `physiological_cycles.csv`, `sleeps.csv`, and `workouts.csv` into a **`.zip`** — **not**
+   the journal, no screenshots.
+3. Open **[New issue → "Add my WHOOP data"](../../issues/new?template=add-data.yml)**, fill the short
+   form (device, date range, name-or-anonymous, consent), and **drag your ZIP** into the attachment box.
 
-Automated checks run on every PR (see [`scripts/validate_contribution.py`](scripts/validate_contribution.py)).
+That's it — the maintainer validates and adds it. (GitHub accepts `.zip` attachments on issues; it
+won't accept a raw `.csv`, which is why you zip them.)
+
+### Advanced: open a pull request
+
+Prefer git? Add `contributions/<device>/<name>/` with the three CSVs + `metadata.yml` (copy the
+[template](contributions/_TEMPLATE/metadata.yml), set `device` to match the folder) and open a PR. Full
+steps in **[CONTRIBUTING.md](CONTRIBUTING.md)**; the [validator](scripts/validate_contribution.py) runs
+on every PR.
 
 ## Repository layout
 
