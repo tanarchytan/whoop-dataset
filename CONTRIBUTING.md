@@ -8,8 +8,8 @@ Thanks for helping build an open WHOOP dataset. Please read this fully — espec
 1. 🚫 **Never include `journal_entries.csv`.** It holds free-text behaviour logs that can contain
    sensitive personal information. PRs containing it are rejected automatically.
 2. 🚫 **No screenshots, PDFs, profile files, or the raw account file** — only the three metric CSVs.
-3. 🔒 **Anonymise.** Use a pseudonym for your folder (`user-01`, `user-3f9a`), never your real name,
-   email, or social handle. Don't put a real name/email anywhere, including `metadata.yml`.
+3. 🔒 **No emails or personal data.** Whether you go anonymous or use your username, never put an
+   **email address** or other personal data anywhere, including `metadata.yml`.
 4. ✅ **Only your own data.** Contribute data about yourself that you consent to publishing publicly.
 
 The dataset is published under **CC BY 4.0** (see [`LICENSE`](LICENSE)).
@@ -34,17 +34,18 @@ Unzip it — you'll see files like `physiological_cycles.csv`, `sleeps.csv`, `wo
 
 ### 3. Create your contribution folder
 
-Pick a **pseudonym** and make a folder under `contributions/`. To avoid collisions with other open
-PRs, add a short random suffix, e.g.:
+Folders are sorted **by device, then by you**: `contributions/<device>/<name>/`.
+
+- `<device>`: your WHOOP model — `3.0`, `4.0`, `5.0`, or `mg`.
+- `<name>`: a **username** (e.g. `alex`) **or** an **anonymous id** (e.g. `user-0001`) — your choice.
+  If you go anonymous and want to avoid collisions, add a short suffix (`user-3f9a`).
 
 ```
-contributions/user-3f9a/
+contributions/5.0/user-0001/
 ```
 
-Allowed folder names match `user-<letters/digits>` (case-insensitive), for example `user-01`,
-`user-x2`, `User7`. **Do not** use your name, initials, or handle.
-
-Drop your three CSVs into that folder.
+If your data spans more than one WHOOP model, make a folder under each device with that device's data.
+Drop your three CSVs into your folder.
 
 ### 4. Fill in `metadata.yml`
 
@@ -52,9 +53,8 @@ Copy [`contributions/_TEMPLATE/metadata.yml`](contributions/_TEMPLATE/metadata.y
 and fill it in. Minimum required:
 
 ```yaml
-pseudonym: user-3f9a            # must match your folder name
-devices:                        # one or more of: "3.0", "4.0", "5.0", "MG"
-  - "5.0"
+username: user-0001            # must match your folder name (a username, or an anon id)
+device: "5.0"                  # must match the parent device folder: 3.0 | 4.0 | 5.0 | mg
 date_range:
   start: "2023-06-01"           # first cycle date (YYYY-MM-DD)
   end:   "2024-12-31"           # last cycle date
@@ -62,9 +62,9 @@ files:
   - physiological_cycles.csv
   - sleeps.csv
   - workouts.csv
-anonymized: true                # you removed all PII
 journal_excluded: true          # journal_entries.csv is NOT included
 consent_public: true            # your own data, consented to public CC BY 4.0
+anonymized: true                # true = anon id (user-0001); false = your real username
 ```
 
 Optional, non-identifying context that makes the data more useful (all optional — leave blank to omit):
@@ -78,17 +78,17 @@ runs [`scripts/validate_contribution.py`](scripts/validate_contribution.py) and 
 - a `journal*` file,
 - disallowed file types,
 - an email address (or other obvious PII) anywhere in your files,
-- a missing/incomplete `metadata.yml`,
-- a bad folder name,
-- unchecked required confirmations.
+- a missing/incomplete `metadata.yml` (or a `device` that doesn't match the folder),
+- a wrong/unknown device folder,
+- unmet required confirmations.
 
 Fix anything it reports and push again.
 
 ## Running the check locally (optional)
 
 ```bash
-python3 scripts/validate_contribution.py            # checks all contributions
-python3 scripts/validate_contribution.py contributions/user-3f9a   # just yours
+python3 scripts/validate_contribution.py               # checks all contributions
+python3 scripts/validate_contribution.py contributions/5.0/user-0001   # just yours
 ```
 
 Pure standard-library Python 3 — no `pip install` needed.

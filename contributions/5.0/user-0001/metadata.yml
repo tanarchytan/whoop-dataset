@@ -1,0 +1,22 @@
+username: user-0001            # must match the folder name (a username, or an anon id like user-0001)
+device: "5.0"                  # must match the parent device folder (3.0 | 4.0 | 5.0 | mg)
+
+date_range:
+  start: "2026-06-23"
+  end: "2026-07-11"
+
+files:
+  - physiological_cycles.csv
+  - sleeps.csv
+  - workouts.csv
+
+# --- Required confirmations ---
+journal_excluded: true         # journal_entries.csv is NOT included
+consent_public: true           # my own data, consented to public CC BY 4.0
+
+# --- Optional ---
+anonymized: true               # true = anon id (user-0001); false = my real username
+timezone: "Europe/Amsterdam"
+sex: ""
+age_band: ""
+notes: "Maintainer seed contribution. WHOOP 5.0, ~3 weeks of data (late June - mid July 2026)."

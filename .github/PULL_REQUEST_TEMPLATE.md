@@ -5,26 +5,26 @@ A bot checks these on your files too — see scripts/validate_contribution.py.
 
 ## New WHOOP data contribution
 
-**Pseudonym / folder:** `contributions/user-____/`
+**Folder:** `contributions/____/____/`  <!-- e.g. contributions/5.0/user-0001/ -->
 
-**WHOOP device(s) this data came from** (tick all that apply):
+**WHOOP device folder** (the data came from this model — one folder per device):
 
 - [ ] 3.0
 - [ ] 4.0
 - [ ] 5.0
-- [ ] MG
+- [ ] mg
 
 **Date range covered:** `YYYY-MM-DD` → `YYYY-MM-DD`
 
 ### Required confirmations
 
 - [ ] This is **my own** WHOOP data and I **consent to publishing it publicly** under CC BY 4.0.
-- [ ] **Anonymised** — my folder name is a pseudonym (e.g. `user-3f9a`, **not** my real name), and I
-      removed any name / email / handle from every file and from `metadata.yml`.
+- [ ] **No email or personal data** in any file or in `metadata.yml` (a username is fine; or use an
+      anonymous id like `user-0001` and set `anonymized: true` — your choice).
 - [ ] **No `journal_entries.csv`** — I did not include the journal (it can hold sensitive behaviour data).
 - [ ] I included **only** `physiological_cycles.csv`, `sleeps.csv`, and/or `workouts.csv` — no
       screenshots, PDFs, profile files, or other data.
-- [ ] I filled in `metadata.yml` (pseudonym, device(s), date range).
+- [ ] I filled in `metadata.yml` (`username`, `device` matching the folder, date range).
 
 ### Anything else? (optional)
 

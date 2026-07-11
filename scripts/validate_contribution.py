@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 """Validate WHOOP dataset contributions.
 
+Layout is sorted by device, then contributor:
+
+    contributions/<device>/<name>/{physiological_cycles,sleeps,workouts}.csv + metadata.yml
+
+  * <device> is one of: 3.0, 4.0, 5.0, mg
+  * <name> is a GitHub-style username OR an anonymous id like user-0001 (contributor's choice)
+
 Enforces the repo's safety + structure rules so sensitive or malformed data can't land:
 
   * no journal_entries.csv (or any "journal" file) - the one export file that can hold sensitive data
   * only the allowed files (the three metric CSVs + metadata.yml + optional NOTES/README)
   * no email address (or other obvious PII) anywhere in the contributed text
-  * a complete metadata.yml with the required confirmations set to true
-  * a pseudonymous folder name (never a real name)
+  * a complete metadata.yml whose device matches the folder it's in
+  * required confirmations (journal_excluded, consent_public) set to true
 
 Standard library only - no `pip install`. Run:
 
-    python3 scripts/validate_contribution.py                     # all contributions
-    python3 scripts/validate_contribution.py contributions/user-3f9a   # one folder
+    python3 scripts/validate_contribution.py                          # all contributions
+    python3 scripts/validate_contribution.py contributions/5.0/user-0001   # one folder
 """
 from __future__ import annotations
 
@@ -23,13 +30,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CONTRIB = ROOT / "contributions"
 
-ALLOWED_DEVICES = {"3.0", "4.0", "5.0", "MG"}
+ALLOWED_DEVICES = {"3.0", "4.0", "5.0", "mg"}
 METRIC_CSVS = {"physiological_cycles.csv", "sleeps.csv", "workouts.csv"}
 ALLOWED_FILES = METRIC_CSVS | {"metadata.yml", "notes.md", "readme.md"}
-REQUIRED_KEYS = ["pseudonym", "devices", "date_range", "files"]
-REQUIRED_TRUE = ["anonymized", "journal_excluded", "consent_public"]
+REQUIRED_KEYS = ["username", "device", "date_range", "files"]
+REQUIRED_TRUE = ["journal_excluded", "consent_public"]  # anonymized is a choice, not required
 
-FOLDER_RE = re.compile(r"^user[-_]?[a-z0-9]+$", re.IGNORECASE)
+NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,38}$")  # username or anon id (e.g. user-0001)
 EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 TEXT_SUFFIXES = {".csv", ".yml", ".yaml", ".md", ".txt", ".json"}
@@ -81,12 +88,20 @@ def parse_metadata(text: str) -> dict:
     return data
 
 
+def _norm_device(d) -> str:
+    d = str(d).strip()
+    return "mg" if d.lower() == "mg" else d
+
+
 def validate_folder(folder: Path) -> list[str]:
     errs: list[str] = []
     name = folder.name
+    device = _norm_device(folder.parent.name)  # the parent folder IS the device
 
-    if not FOLDER_RE.match(name):
-        errs.append(f"folder name '{name}' must be a pseudonym like 'user-3f9a' (never a real name)")
+    if not NAME_RE.match(name):
+        errs.append(f"folder name '{name}' must be a username or an id like 'user-0001'")
+    if device not in ALLOWED_DEVICES:
+        errs.append(f"parent device folder '{folder.parent.name}' is not one of {sorted(ALLOWED_DEVICES)}")
 
     # --- file allow-list + journal ban ---
     present_csvs = set()
@@ -133,20 +148,18 @@ def validate_folder(folder: Path) -> list[str]:
         if meta.get(key) is not True:
             errs.append(f"metadata.yml: '{key}' must be set to true")
 
-    pseudo = meta.get("pseudonym")
-    if pseudo and str(pseudo).strip().lower() != name.lower():
-        errs.append(f"metadata.yml: pseudonym '{pseudo}' must match the folder name '{name}'")
-    if isinstance(pseudo, str) and "xxxx" in pseudo.lower():
-        errs.append("metadata.yml: pseudonym still says 'user-XXXX' - set a real pseudonym")
+    uname = meta.get("username")
+    if uname and str(uname).strip() != name:
+        errs.append(f"metadata.yml: username '{uname}' must match the folder name '{name}'")
+    if isinstance(uname, str) and "xxxx" in uname.lower():
+        errs.append("metadata.yml: username still says the template placeholder - set a real value")
 
-    devices = meta.get("devices")
-    if isinstance(devices, list):
-        for d in devices:
-            norm = "MG" if str(d).strip().upper() == "MG" else str(d).strip()
-            if norm not in ALLOWED_DEVICES:
-                errs.append(f"metadata.yml: device '{d}' is not one of {sorted(ALLOWED_DEVICES)}")
-    elif devices:
-        errs.append("metadata.yml: 'devices' must be a list (e.g. - \"5.0\")")
+    meta_device = meta.get("device")
+    if meta_device is not None:
+        if _norm_device(meta_device) not in ALLOWED_DEVICES:
+            errs.append(f"metadata.yml: device '{meta_device}' is not one of {sorted(ALLOWED_DEVICES)}")
+        elif _norm_device(meta_device) != device:
+            errs.append(f"metadata.yml: device '{meta_device}' must match the folder it's in ('{device}')")
 
     dr = meta.get("date_range")
     if isinstance(dr, dict):
@@ -166,14 +179,31 @@ def validate_folder(folder: Path) -> list[str]:
     return errs
 
 
-def find_folders(argv: list[str]) -> list[Path]:
+def gather(argv: list[str]) -> tuple[list[Path], list[str]]:
+    """Return (user folders to validate, top-level structural errors)."""
     if argv:
-        return [Path(a).resolve() for a in argv]
+        return [Path(a).resolve() for a in argv], []
     if not CONTRIB.exists():
-        return []
-    return sorted(
-        d for d in CONTRIB.iterdir() if d.is_dir() and not d.name.startswith("_")
-    )
+        return [], []
+    user_dirs: list[Path] = []
+    top: list[str] = []
+    for dev in sorted(CONTRIB.iterdir()):
+        if dev.name.startswith("_"):
+            continue
+        if not dev.is_dir():
+            top.append(f"contributions/{dev.name}: put data under a device folder (3.0/4.0/5.0/mg)")
+            continue
+        if _norm_device(dev.name) not in ALLOWED_DEVICES:
+            top.append(f"contributions/{dev.name}/ is not a valid device folder (use 3.0/4.0/5.0/mg)")
+            continue
+        for u in sorted(dev.iterdir()):
+            if u.name.startswith("_"):
+                continue
+            if u.is_dir():
+                user_dirs.append(u)
+            else:
+                top.append(f"contributions/{dev.name}/{u.name}: files must live inside a user folder")
+    return user_dirs, top
 
 
 def main(argv: list[str]) -> int:
@@ -182,25 +212,30 @@ def main(argv: list[str]) -> int:
         sys.stdout.reconfigure(encoding="utf-8")
     except Exception:
         pass
-    folders = find_folders(argv)
-    if not folders:
+
+    folders, top_errors = gather(argv)
+    total_errs = len(top_errors)
+    for e in top_errors:
+        print(f"FAIL {e}")
+
+    if not folders and not top_errors:
         print("No contribution folders to validate.")
         return 0
 
-    total_errs = 0
     for folder in folders:
         if not folder.exists():
             print(f"FAIL {folder}: does not exist")
             total_errs += 1
             continue
         errs = validate_folder(folder)
+        label = f"{folder.parent.name}/{folder.name}"
         if errs:
             total_errs += len(errs)
-            print(f"FAIL {folder.name}:")
+            print(f"FAIL {label}:")
             for e in errs:
                 print(f"    - {e}")
         else:
-            print(f"OK   {folder.name}")
+            print(f"OK   {label}")
 
     print()
     if total_errs:

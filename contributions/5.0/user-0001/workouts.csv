@@ -1,0 +1,3 @@
+Cycle start time,Cycle end time,Cycle timezone,Workout start time,Workout end time,Duration (min),Activity name,Activity Strain,Energy burned (cal),Max HR (bpm),Average HR (bpm),HR Zone 1 %,HR Zone 2 %,HR Zone 3 %,HR Zone 4 %,HR Zone 5 %,GPS enabled
+2026-07-07 23:30:37,2026-07-09 01:30:56,UTC+02:00,2026-07-08 23:20:00,2026-07-08 23:44:59,24,Activity,6.4,167.0,170,132,82,9,5,2,0,false
+2026-07-03 00:03:50,2026-07-04 00:46:12,UTC+02:00,2026-07-03 22:14:00,2026-07-03 22:29:59,15,Activity,4.1,22.0,122,110,0,0,0,0,0,false

@@ -66,6 +66,7 @@ One row per logged workout/activity.
 
 ## Device context
 
-Which WHOOP generation produced the data lives in each contribution's `metadata.yml` (`devices:`),
-not in the CSVs. Some columns only appear on newer straps (e.g. `Blood oxygen %`, `Skin temp` from
-4.0 onward), so expect blanks where a generation didn't measure something.
+Which WHOOP generation produced the data is the **device folder** the contribution lives in
+(`contributions/<device>/…`) and is mirrored in `metadata.yml` (`device:`), not in the CSVs. Some
+columns only appear on newer straps (e.g. `Blood oxygen %`, `Skin temp` from 4.0 onward), so expect
+blanks where a generation didn't measure something.

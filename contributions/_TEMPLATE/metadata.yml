@@ -1,27 +1,25 @@
-# Contribution metadata — copy this file into your own contributions/user-XXXX/ folder and fill it in.
-# NO real name, email, or handle anywhere in here. Pseudonyms only.
+# Contribution metadata - copy this file into contributions/<device>/<your-name>/ and fill it in.
+# Never put an email or a journal file here. A username is fine; or use an anon id like user-0001.
 
-pseudonym: user-XXXX            # REQUIRED. Must match your folder name (e.g. user-3f9a). Not your real name.
+username: user-XXXX            # REQUIRED. Must match your folder name (a username, or an id like user-0001).
+device: "5.0"                  # REQUIRED. Must match the parent device folder: "3.0" | "4.0" | "5.0" | "mg"
 
-devices:                        # REQUIRED. One or more of: "3.0", "4.0", "5.0", "MG"
-  - "5.0"
-
-date_range:                     # REQUIRED. The span your data covers (YYYY-MM-DD).
+date_range:                    # REQUIRED. The span your data covers (YYYY-MM-DD).
   start: "2023-06-01"
   end:   "2024-12-31"
 
-files:                          # REQUIRED. Which export CSVs you included (never the journal).
+files:                         # REQUIRED. Which export CSVs you included (never the journal).
   - physiological_cycles.csv
   - sleeps.csv
   - workouts.csv
 
-# --- Required confirmations (all must be true) ---
-anonymized: true                # I removed all PII; my folder is a pseudonym.
-journal_excluded: true          # journal_entries.csv is NOT included.
-consent_public: true            # This is my own data and I consent to publishing it publicly under CC BY 4.0.
+# --- Required confirmations (must be true) ---
+journal_excluded: true         # journal_entries.csv is NOT included.
+consent_public: true           # This is my own data and I consent to publishing it publicly under CC BY 4.0.
 
-# --- Optional, non-identifying context (leave blank to omit; helps whoever uses the dataset) ---
-timezone: ""                    # e.g. "Europe/Amsterdam" (IANA timezone)
-sex: ""                         # "M" | "F" | "other" | ""  (optional)
-age_band: ""                    # a BAND only, e.g. "20-29", "30-39" — never an exact age or birth date
-notes: ""                       # anything useful (e.g. "switched 4.0 -> 5.0 in mid-2024"). No PII.
+# --- Optional ---
+anonymized: true               # true = anonymous id (user-0001); false = my real username. Your choice.
+timezone: ""                   # e.g. "Europe/Amsterdam" (IANA timezone)
+sex: ""                        # "M" | "F" | "other" | ""  (optional)
+age_band: ""                   # a BAND only, e.g. "20-29", "30-39" - never an exact age or birth date
+notes: ""                      # anything useful. No emails, no journal content.
