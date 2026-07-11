@@ -2,16 +2,13 @@ name: validate-contributions
 
 # Runs on every PR and push: rejects the journal file, PII (emails), disallowed files,
 # and incomplete metadata. Pure stdlib Python — no dependencies to install.
+# No path filter on purpose: this is a REQUIRED check, so it must report on every PR
+# (a path-filtered required check hangs "pending" on PRs that don't touch contributions/).
 
 on:
   pull_request:
-    paths:
-      - "contributions/**"
-      - "scripts/validate_contribution.py"
   push:
     branches: [main]
-    paths:
-      - "contributions/**"
 
 jobs:
   validate:
