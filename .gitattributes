@@ -1,0 +1,6 @@
+# Normalize line endings to LF in the repo for all text (avoids CRLF churn across OSes).
+* text=auto eol=lf
+*.py  text eol=lf
+*.md  text eol=lf
+*.yml text eol=lf
+*.csv text eol=lf
