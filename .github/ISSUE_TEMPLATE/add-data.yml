@@ -1,0 +1,89 @@
+name: Add my WHOOP data
+description: Submit your WHOOP export (as a ZIP) to the dataset — the easy, no-git way.
+title: "[data] "
+labels: ["data-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing! Fill in the fields and **attach a ZIP of your 3 metric CSVs**.
+
+        > **Never include `journal_entries.csv`** — it can hold sensitive behaviour data. ZIP **only**
+        > `physiological_cycles.csv`, `sleeps.csv`, and `workouts.csv`. No screenshots, PDFs, or profile files.
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: WHOOP device
+      description: Which model recorded this data?
+      options:
+        - "3.0"
+        - "4.0"
+        - "5.0"
+        - "mg"
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: Username or anonymous id
+      description: Your GitHub username, OR an anonymous id like `user-0002`. This becomes your folder name.
+      placeholder: user-0002
+    validations:
+      required: true
+
+  - type: dropdown
+    id: anonymized
+    attributes:
+      label: Anonymous or named?
+      options:
+        - "Anonymous (an id like user-0002)"
+        - "Named (my username)"
+    validations:
+      required: true
+
+  - type: input
+    id: date_start
+    attributes:
+      label: First cycle date
+      placeholder: "2023-06-01"
+    validations:
+      required: true
+
+  - type: input
+    id: date_end
+    attributes:
+      label: Last cycle date
+      placeholder: "2024-12-31"
+    validations:
+      required: true
+
+  - type: textarea
+    id: attachment
+    attributes:
+      label: Attach your data (ZIP)
+      description: |
+        Drag a **.zip** containing ONLY `physiological_cycles.csv`, `sleeps.csv`, and `workouts.csv`
+        into this box. (GitHub accepts `.zip` attachments; it won't accept raw `.csv`.)
+      placeholder: Drop your data.zip here...
+    validations:
+      required: true
+
+  - type: input
+    id: timezone
+    attributes:
+      label: Timezone (optional)
+      description: IANA timezone, e.g. Europe/Amsterdam. Helps sleep/circadian analysis. Optional.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: This is my **own** WHOOP data and I consent to publishing it publicly under CC BY 4.0.
+          required: true
+        - label: My ZIP does **NOT** include `journal_entries.csv`.
+          required: true
+        - label: No email addresses or other personal data are in the files.
+          required: true

@@ -3,6 +3,10 @@
 Thanks for helping build an open WHOOP dataset. Please read this fully — especially the
 **[safety rules](#safety-rules-read-first)** — before opening a PR.
 
+> **Not a git user?** The easiest way to contribute is the
+> **[Add my WHOOP data](../../issues/new?template=add-data.yml)** issue form — fill it in, drag a ZIP of
+> your three CSVs, done. This document is the **pull-request** path for people who prefer git.
+
 ## Safety rules (read first)
 
 1. 🚫 **Never include `journal_entries.csv`.** It holds free-text behaviour logs that can contain
