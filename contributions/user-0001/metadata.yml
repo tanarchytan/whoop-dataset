@@ -1,0 +1,24 @@
+pseudonym: user-0001
+
+devices:
+  - "5.0"
+
+date_range:
+  start: "2026-06-23"
+  end: "2026-07-11"
+
+files:
+  - physiological_cycles.csv
+  - sleeps.csv
+  - workouts.csv
+
+# --- Required confirmations ---
+anonymized: true
+journal_excluded: true
+consent_public: true
+
+# --- Optional context ---
+timezone: "Europe/Amsterdam"
+sex: ""
+age_band: ""
+notes: "Maintainer seed contribution. WHOOP 5.0, ~3 weeks of data (late June - mid July 2026)."
