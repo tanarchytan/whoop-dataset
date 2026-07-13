@@ -3,15 +3,21 @@
 validated contribution folder, in one command.
 
     python3 scripts/accept_submission.py --zip ~/Downloads/data.zip \
-        --device 5.0 --user user-0002 --start 2023-06-01 --end 2024-12-31 [--named] [--tz Europe/Amsterdam]
+        --device 5.0 --user user-0002 --gh-user theirLogin \
+        --start 2023-06-01 --end 2024-12-31 [--named] [--tz Europe/Amsterdam]
 
 It extracts ONLY physiological_cycles.csv / sleeps.csv / workouts.csv from the ZIP (it refuses the
 journal and anything else), writes metadata.yml from the flags, then runs the validator. Then you
 review, commit, and close the issue. Standard library only.
+
+--gh-user is the GitHub login of the issue author. It adds a stable pseudonymous suffix to the
+folder (e.g. user-0002 -> user-0002-3f9a) so two different people who pick the same handle never
+collide, and the same person's re-submission is recognisable. See owner_tag() below.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 import zipfile
 from pathlib import Path
@@ -20,6 +26,17 @@ ROOT = Path(__file__).resolve().parent.parent
 CONTRIB = ROOT / "contributions"
 METRIC_CSVS = {"physiological_cycles.csv", "sleeps.csv", "workouts.csv"}
 ALLOWED_DEVICES = {"3.0", "4.0", "5.0", "mg"}
+
+
+def owner_tag(gh_user: str) -> str:
+    """Stable 4-hex pseudonymous suffix derived from the submitter's GitHub login.
+
+    Same login -> same tag (a re-submission by the same person lands on the same folder,
+    so we recognise it); two *different* people who both pick the handle "user-69" get
+    *different* tags, so their folders never collide. It's one-way: we never store the
+    login, only this hash - and it can be re-derived from a claimed login later to prove
+    who owns a folder (e.g. on a "remove my data" request)."""
+    return hashlib.sha256(gh_user.strip().lower().encode("utf-8")).hexdigest()[:4]
 
 
 def main() -> int:
@@ -31,7 +48,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Accept a WHOOP data-submission ZIP into the dataset.")
     ap.add_argument("--zip", required=True, help="path to the submitted .zip")
     ap.add_argument("--device", required=True, help="3.0 | 4.0 | 5.0 | mg")
-    ap.add_argument("--user", required=True, help="folder name: a username or an anon id like user-0002")
+    ap.add_argument("--user", required=True, help="the handle they chose: a username or an anon id like user-0002")
+    ap.add_argument("--gh-user", default="", help="GitHub login of the issue author; adds a stable pseudonymous "
+                    "suffix so two different people who pick the same handle don't collide (strongly recommended)")
     ap.add_argument("--start", required=True, help="first cycle date YYYY-MM-DD")
     ap.add_argument("--end", required=True, help="last cycle date YYYY-MM-DD")
     ap.add_argument("--named", action="store_true", help="contributor used their real username (anonymized: false)")
@@ -46,9 +65,22 @@ def main() -> int:
         print(f"error: --device must be one of {sorted(ALLOWED_DEVICES)}")
         return 2
 
-    dest = CONTRIB / device / a.user
+    # Append a per-submitter pseudonymous tag so two different people who pick the same
+    # handle (e.g. both type "user-69") never land in the same folder.
+    tag = owner_tag(a.gh_user) if a.gh_user.strip() else ""
+    folder = f"{a.user}-{tag}" if tag else a.user
+    if not tag:
+        print(f"warning: no --gh-user given -> no owner tag added. Two different people who "
+              f"both pick '{a.user}' would collide. Pass --gh-user <issue author login> to prevent this.")
+
+    dest = CONTRIB / device / folder
     if dest.exists():
-        print(f"error: {dest.relative_to(ROOT)} already exists - refusing to overwrite")
+        if tag:
+            print(f"error: {dest.relative_to(ROOT)} already exists - its owner tag '{tag}' re-derives "
+                  f"from this same login, so this is a re-submission by the same contributor. "
+                  f"Delete the folder first if you mean to replace it.")
+        else:
+            print(f"error: {dest.relative_to(ROOT)} already exists - refusing to overwrite")
         return 2
     dest.mkdir(parents=True)
 
@@ -74,7 +106,7 @@ def main() -> int:
         return 2
 
     lines = [
-        f"username: {a.user}",
+        f"username: {folder}",
         f'device: "{device}"',
         "",
         "date_range:",
@@ -88,6 +120,8 @@ def main() -> int:
         "consent_public: true",
         f"anonymized: {'false' if a.named else 'true'}",
     ]
+    if tag:
+        lines.append(f'owner_tag: "{tag}"  # pseudonymous, per-submitter; re-derive from the GitHub login to prove ownership')
     for key, val in (("timezone", a.tz), ("sex", a.sex), ("age_band", a.age), ("notes", a.notes)):
         if val:
             lines.append(f'{key}: "{val}"')
@@ -100,14 +134,14 @@ def main() -> int:
 
     print("\nValidating...")
     errs = v.validate_folder(dest)
-    label = f"{device}/{a.user}"
+    label = f"{device}/{folder}"
     if errs:
         print(f"FAIL {label}:")
         for e in errs:
             print(f"    - {e}")
         print("\nFix the folder, then `git add` + commit. (Data was extracted but did not pass checks.)")
         return 1
-    print(f"OK   {label}\n\nReview it, then:\n  git add contributions/{device}/{a.user}\n  git commit -m 'data: add {label}'\n  git push")
+    print(f"OK   {label}\n\nReview it, then:\n  git add contributions/{device}/{folder}\n  git commit -m 'data: add {label}'\n  git push")
     return 0
 
 
