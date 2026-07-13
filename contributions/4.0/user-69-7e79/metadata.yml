@@ -1,0 +1,16 @@
+username: user-69-7e79
+device: "4.0"
+
+date_range:
+  start: "2025-05-07"
+  end:   "2026-03-30"
+
+files:
+  - physiological_cycles.csv
+  - sleeps.csv
+  - workouts.csv
+
+journal_excluded: true
+consent_public: true
+anonymized: true
+owner_tag: "7e79"  # pseudonymous, per-submitter; re-derive from the GitHub login to prove ownership
