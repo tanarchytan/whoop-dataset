@@ -3,7 +3,7 @@ device: "5.0"                  # must match the parent device folder (3.0 | 4.0 
 
 date_range:
   start: "2026-06-23"
-  end: "2026-07-11"
+  end: "2026-07-13"
 
 files:
   - physiological_cycles.csv
@@ -19,4 +19,4 @@ anonymized: true               # true = anon id (user-0001); false = my real use
 timezone: "Europe/Amsterdam"
 sex: ""
 age_band: ""
-notes: "Maintainer seed contribution. WHOOP 5.0, ~3 weeks of data (late June - mid July 2026)."
+notes: "Maintainer seed contribution. WHOOP 5.0, ~3 weeks of data (late June - mid July 2026). Refreshed 2026-07-14 with a fuller export (through 07-13)."
