@@ -1,0 +1,22 @@
+username: digitalerdude        # must match the folder name (a username, or an anon id like user-0001)
+device: "5.0"                  # must match the parent device folder (3.0 | 4.0 | 5.0 | mg)
+
+date_range:
+  start: "2025-07-24"
+  end: "2026-06-20"
+
+files:
+  - physiological_cycles.csv
+  - sleeps.csv
+  - workouts.csv
+
+# --- Required confirmations ---
+journal_excluded: true         # journal_entries.csv is NOT included
+consent_public: true           # my own data, consented to public CC BY 4.0
+
+# --- Optional ---
+anonymized: false               # named contribution
+timezone: ""
+sex: ""
+age_band: ""
+notes: "WHOOP 5.0, ~11 months of data (Jul 2025 - Jun 2026). Original export was German-locale; column headers translated to the English schema in schema/DATA_DICTIONARY.md, data values left as exported."
