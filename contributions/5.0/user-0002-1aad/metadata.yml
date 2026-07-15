@@ -1,0 +1,17 @@
+username: user-0002-1aad
+device: "5.0"
+
+date_range:
+  start: "2026-04-18"
+  end:   "2026-07-13"
+
+files:
+  - physiological_cycles.csv
+  - sleeps.csv
+
+journal_excluded: true
+consent_public: true
+anonymized: true
+owner_tag: "1aad"  # pseudonymous, per-submitter; re-derive from the GitHub login to prove ownership
+timezone: "America/New_York"
+notes: "Converted from public WHOOP-API daily snapshots; used with contributor permission, anonymized by request. Workouts omitted (source lacked per-workout detail)."
